@@ -1,32 +1,40 @@
 <?php
-	$to = htmlspecialchars($_REQUEST['to']);
-	$message = htmlspecialchars($_REQUEST['message']);
-	
+$to = htmlspecialchars($_REQUEST['to']);
+$message = htmlspecialchars($_REQUEST['message']);
+
 // Set your Proovl API key and from Proovl number
-	
-$api_key = '22v3v223'; # Proovl Token
-$from = '444444444';   # Proovl Number
+$user = 'Nnf3n92'; // Proovl User ID
+$token = 'Fsdf2j92'; // Proovl Token
+$from = '444444444'; // Proovl Number
 
 $url = "https://www.proovl.com/api/send.php";
 
-$query_params = array(
-    'api_key' => $api_key,
-    'from' => "$from",
-    'to' => "$to",
-    'text' => "$message"
+$data = array(
+    'user' => $user,
+    'token' => $token,
+    'from' => $from,
+    'to' => $to,
+    'text' => $message
 );
 
-$url .= '?' . http_build_query($query_params);
+$options = array(
+    'http' => array(
+        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+        'method'  => 'POST',
+        'content' => http_build_query($data),
+    ),
+);
 
-$response = file_get_contents($url);
+$context  = stream_context_create($options);
+$response = file_get_contents($url, false, $context);
 
 $result = explode(';', $response);
 
 if ($result[0] == 'Error') {
-	 http_response_code(400);
+    http_response_code(400);
     echo json_encode(array('error' => $result[1]));
 } else {
-	 http_response_code(200);
+    http_response_code(200);
     echo json_encode(array(
         'message_id' => $result[1],
         'status' => $result[0],
