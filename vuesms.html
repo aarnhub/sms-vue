@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proovl API Vue 3 js</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.0/css/bootstrap.min.css" />
+	
+  <style>
+        body {
+            background-color: #f2f2f2;
+            color: #444444;
+            font-family: 'Helvetica Neue', sans-serif;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #3c3c3c;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .form-control {
+            border-radius: 8px;
+            box-shadow: none;
+            color: #444444;
+        }
+        .form-label {
+            color: #666666;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: #3c3c3c;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            background-color: #292929;
+        }
+        .list-group-item {
+            background-color: #ffffff;
+            border: none;
+            color: #444444;
+            font-weight: bold;
+        }
+        .mt-3 {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body class="bg-dark">
+    <div id="app">
+        <div class="card text-center m-3">
+            <h5 class="card-header">Proovl API Vue 3 js</h5>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="to" class="form-label">To:</label>
+                    <input type="text" class="form-control" id="to" v-model="to">
+                </div>
+                <div class="mb-3">
+                    <label for="message" class="form-label">Message:</label>
+                    <textarea class="form-control" id="message" rows="3" v-model="message"></textarea>
+                </div>
+                <button class="btn btn-primary" @click="sendSMS">Send SMS</button>
+                <div v-if="product" class="mt-3">
+                    <div>List of successfully sent messages:</div>
+                    <ul class="list-group">
+                        <li class="list-group-item" v-for="p in product">{{ p }}</li>
+                    </ul>
+                </div>
+                <div v-if="errorMessage" class="mt-3">
+                    <div>List of errors:</div>
+                    <ul class="list-group">
+                        <li class="list-group-item" v-for="e in errorMessage">{{ e }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const app = Vue.createApp({
+            setup() {
+                const product = Vue.ref([]);
+                const errorMessage = Vue.ref([]);
+                const to = Vue.ref('');
+                const message = Vue.ref('');
+                const sendSMS = async () => {
+                    try {
+                        const response = await fetch(`api.php?to=${encodeURIComponent(to.value)}&message=${encodeURIComponent(message.value)}`);
+                        const data = await response.json();
+                        if (!response.ok) {
+                            const error = data?.error || 'An error occurred.';
+                            errorMessage.value.push(error);
+                            console.error(error);
+                        } else {
+                            product.value.push(data.message_id);
+                        }
+                    } catch (error) {
+                        errorMessage.value.push(error.message);
+                        console.error(error);
+                    }
+                };
+                return {
+                    product,
+                    errorMessage,
+                    to,
+                    message,
+                    sendSMS
+                };
+            }
+        });
+        app.mount('#app');
+    </script>
+</body>
+</html>
